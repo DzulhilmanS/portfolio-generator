@@ -64,13 +64,20 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'No valid stocks found in CSV.' });
   }
 
-  // Collect unique Yahoo Finance tickers
-  const uniqueTickers = [...new Set(stocks.map((s) => s.yahooTicker))];
+  // Collect unique tickers with their stock names for fallback lookup
+  const tickerItems = [];
+  const seenTickers = new Set();
+  for (const s of stocks) {
+    if (!seenTickers.has(s.yahooTicker)) {
+      tickerItems.push({ ticker: s.yahooTicker, stockName: s.stockName });
+      seenTickers.add(s.yahooTicker);
+    }
+  }
 
   // --- Step 2: Fetch market data from Yahoo Finance ---
   let marketDataList;
   try {
-    marketDataList = await fetchAllStockData(uniqueTickers);
+    marketDataList = await fetchAllStockData(tickerItems);
   } catch (fetchErr) {
     return res.status(500).json({ error: `Market data fetch error: ${fetchErr.message}` });
   }
