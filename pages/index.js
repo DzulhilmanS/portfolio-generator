@@ -6,7 +6,7 @@ import { useState, useRef } from 'react';
 
 function ScoreBar({ score, color = 'green' }) {
   const colorMap = {
-    green: 'bg-green-500',
+    green: 'bg-purple-500',
     emerald: 'bg-emerald-500',
     yellow: 'bg-yellow-400',
     orange: 'bg-orange-500',
@@ -27,7 +27,7 @@ function ScoreBar({ score, color = 'green' }) {
 function GradeBadge({ grade }) {
   if (!grade) return null;
   const map = {
-    green: 'bg-green-100 text-green-800 border-green-200',
+    green: 'bg-purple-100 text-purple-800 border-purple-200',
     emerald: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     yellow: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     orange: 'bg-orange-100 text-orange-800 border-orange-200',
@@ -52,7 +52,7 @@ function MetricRow({ label, value, sub }) {
 
 function Pill({ label, color = 'gray' }) {
   const map = {
-    green: 'bg-green-100 text-green-700',
+    green: 'bg-purple-100 text-purple-700',
     red: 'bg-red-100 text-red-700',
     yellow: 'bg-yellow-100 text-yellow-700',
     blue: 'bg-blue-100 text-blue-700',
@@ -79,7 +79,7 @@ function StockCard({ stock, rank }) {
   const fmtNum = (n, dp = 2) => (n != null ? Number(n).toFixed(dp) : '—');
 
   const rsiColor =
-    tech?.rsiColor === 'green' ? 'text-green-600' :
+    tech?.rsiColor === 'green' ? 'text-purple-600' :
     tech?.rsiColor === 'red' ? 'text-red-600' :
     tech?.rsiColor === 'blue' ? 'text-blue-600' :
     tech?.rsiColor === 'orange' ? 'text-orange-500' :
@@ -89,8 +89,8 @@ function StockCard({ stock, rank }) {
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       {/* Header */}
       <div className="p-4 flex items-start gap-3">
-        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-50 border border-green-200 flex items-center justify-center">
-          <span className="text-sm font-bold text-green-700">{rank}</span>
+        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-50 border border-purple-200 flex items-center justify-center">
+          <span className="text-sm font-bold text-purple-700">{rank}</span>
         </div>
 
         <div className="flex-1 min-w-0">
@@ -143,7 +143,7 @@ function StockCard({ stock, rank }) {
 
       {/* Allocation summary (always visible) */}
       {allocation && (
-        <div className="mx-4 mb-3 p-3 bg-green-50 border border-green-100 rounded-lg">
+        <div className="mx-4 mb-3 p-3 bg-purple-50 border border-green-100 rounded-lg">
           <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
             <div className="flex justify-between">
               <span className="text-gray-500">Lots / Shares</span>
@@ -172,9 +172,9 @@ function StockCard({ stock, rank }) {
             <div className="text-xs text-gray-400">Entry</div>
             <div className="text-xs font-bold text-blue-700">{fmt(levels.entry)}</div>
           </div>
-          <div className="p-2 bg-green-50 rounded-lg">
+          <div className="p-2 bg-purple-50 rounded-lg">
             <div className="text-xs text-gray-400">TP1 (+{fmtPct(levels.rewardPct)})</div>
-            <div className="text-xs font-bold text-green-700">{fmt(levels.tp1)}</div>
+            <div className="text-xs font-bold text-purple-700">{fmt(levels.tp1)}</div>
           </div>
           <div className="p-2 bg-emerald-50 rounded-lg">
             <div className="text-xs text-gray-400">TP2 (+{fmtPct(levels.reward2Pct)})</div>
@@ -192,13 +192,13 @@ function StockCard({ stock, rank }) {
         <div className="mx-4 mb-3 grid grid-cols-3 gap-2 text-center text-xs">
           <div className="p-2 bg-gray-50 rounded">
             <div className="text-gray-400">R:R Ratio</div>
-            <div className={`font-bold ${levels.rrRatio >= 2 ? 'text-green-600' : levels.rrRatio >= 1.5 ? 'text-yellow-600' : 'text-red-500'}`}>
+            <div className={`font-bold ${levels.rrRatio >= 2 ? 'text-purple-600' : levels.rrRatio >= 1.5 ? 'text-yellow-600' : 'text-red-500'}`}>
               {fmtNum(levels.rrRatio, 1)}:1
             </div>
           </div>
-          <div className="p-2 bg-green-50 rounded">
+          <div className="p-2 bg-purple-50 rounded">
             <div className="text-gray-400">Gain @ TP1</div>
-            <div className="font-bold text-green-700">+RM{allocation.projectedTP1Gain?.toFixed(0)}</div>
+            <div className="font-bold text-purple-700">+RM{allocation.projectedTP1Gain?.toFixed(0)}</div>
           </div>
           <div className="p-2 bg-red-50 rounded">
             <div className="text-gray-400">Max Loss</div>
@@ -261,7 +261,7 @@ function StockCard({ stock, rank }) {
                 <MetricRow label="EMA 50" value={tech?.ema50 != null ? `RM${tech.ema50.toFixed(3)}` : null} />
                 <MetricRow label="MACD Signal" value={
                   tech?.macd ? (
-                    <span className={tech.macd.bullish ? 'text-green-600' : 'text-red-500'}>
+                    <span className={tech.macd.bullish ? 'text-purple-600' : 'text-red-500'}>
                       {tech.macd.bullishCross ? 'Bullish Cross 🔥' : tech.macd.bullish ? 'Bullish' : 'Bearish'}
                     </span>
                   ) : null
@@ -277,7 +277,7 @@ function StockCard({ stock, rank }) {
                 <span className="text-gray-400 mx-2">|</span>
                 <span className="text-gray-600">M: RM{tech.bollingerBands.middle.toFixed(3)}</span>
                 <span className="text-gray-400 mx-2">|</span>
-                <span className="text-green-600">U: RM{tech.bollingerBands.upper.toFixed(3)}</span>
+                <span className="text-purple-600">U: RM{tech.bollingerBands.upper.toFixed(3)}</span>
               </div>
             )}
           </div>
@@ -330,9 +330,9 @@ function PortfolioSummary({ portfolio, capital }) {
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-6">
       <h2 className="text-base font-semibold text-gray-800 mb-4">Portfolio Summary</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-green-50 rounded-lg p-3 text-center">
+        <div className="bg-purple-50 rounded-lg p-3 text-center">
           <div className="text-xs text-gray-500 mb-1">Total Invested</div>
-          <div className="text-lg font-bold text-green-700">RM{totalInvested.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+          <div className="text-lg font-bold text-purple-700">RM{totalInvested.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
         </div>
         <div className="bg-blue-50 rounded-lg p-3 text-center">
           <div className="text-xs text-gray-500 mb-1">Cash Remaining</div>
@@ -351,7 +351,7 @@ function PortfolioSummary({ portfolio, capital }) {
       <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
         <div className="flex justify-between">
           <span className="text-gray-500">Projected gain (TP1)</span>
-          <span className="font-semibold text-green-600">+RM{ps.totalProjectedTP1Gain.toFixed(0)}</span>
+          <span className="font-semibold text-purple-600">+RM{ps.totalProjectedTP1Gain.toFixed(0)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-500">Max portfolio loss (SL hit)</span>
@@ -367,7 +367,7 @@ function PortfolioSummary({ portfolio, capital }) {
         </div>
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
           <div
-            className="h-full bg-green-500 rounded-full"
+            className="h-full bg-purple-500 rounded-full"
             style={{ width: `${Math.min((totalInvested / capital) * 100, 100)}%` }}
           />
         </div>
@@ -413,11 +413,11 @@ function AllocationTable({ selected }) {
                 <td className="px-4 py-2 text-right font-semibold text-purple-600">{s.scores?.totalScore ?? '—'}</td>
                 <td className="px-4 py-2 text-right">RM{s.chart?.currentPrice?.toFixed(3) ?? '—'}</td>
                 <td className="px-4 py-2 text-right font-medium">{s.allocation?.lots ?? '—'}</td>
-                <td className="px-4 py-2 text-right text-green-600">RM{s.levels?.tp1?.toFixed(3) ?? '—'}</td>
+                <td className="px-4 py-2 text-right text-purple-600">RM{s.levels?.tp1?.toFixed(3) ?? '—'}</td>
                 <td className="px-4 py-2 text-right text-red-500">RM{s.levels?.sl?.toFixed(3) ?? '—'}</td>
                 <td className="px-4 py-2 text-right font-medium">{s.levels?.rrRatio?.toFixed(1) ?? '—'}:1</td>
                 <td className="px-4 py-2 text-right">RM{s.allocation?.invested?.toFixed(0) ?? '—'}</td>
-                <td className="px-4 py-2 text-right text-green-600">+RM{s.allocation?.projectedTP1Gain?.toFixed(0) ?? '—'}</td>
+                <td className="px-4 py-2 text-right text-purple-600">+RM{s.allocation?.projectedTP1Gain?.toFixed(0) ?? '—'}</td>
               </tr>
             ))}
           </tbody>
@@ -514,15 +514,15 @@ export default function Home() {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white text-sm font-bold">P</span>
             </div>
             <div>
               <h1 className="text-base font-bold text-gray-900 leading-none">Portfolio Generator</h1>
-              <p className="text-xs text-gray-400 leading-none mt-0.5">Bursa Malaysia · Powered by broker buycalls</p>
+              <p className="text-xs text-gray-400 leading-none mt-0.5">Powered by MWMVIP Group</p>
             </div>
           </div>
-          <span className="text-xs text-gray-400">iSaham-style screening</span>
+          <span></span>
         </div>
       </header>
 
@@ -540,7 +540,7 @@ export default function Home() {
                   type="number"
                   value={capital}
                   onChange={(e) => setCapital(e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="100000"
                   min="1000"
                 />
@@ -552,7 +552,7 @@ export default function Home() {
                 type="number"
                 value={numStocks}
                 onChange={(e) => setNumStocks(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="10"
                 min="1"
                 max="30"
@@ -566,15 +566,15 @@ export default function Home() {
             <div className="flex gap-2 mb-3">
               <button
                 onClick={() => setCsvSource('upload')}
-                className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-colors ${csvSource === 'upload' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-colors ${csvSource === 'upload' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
               >
                 📁 Upload CSV
               </button>
               <button
                 onClick={() => setCsvSource('telegram')}
-                className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-colors ${csvSource === 'telegram' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-colors ${csvSource === 'telegram' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
               >
-                📨 Fetch from Telegram
+                📨 Fetch Broker's Buycalls
               </button>
             </div>
 
@@ -583,7 +583,7 @@ export default function Home() {
                 <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFileUpload} />
                 <button
                   onClick={() => fileRef.current?.click()}
-                  className="w-full border-2 border-dashed border-gray-200 rounded-lg py-4 text-center text-sm text-gray-400 hover:border-green-400 hover:text-green-600 transition-colors"
+                  className="w-full border-2 border-dashed border-gray-200 rounded-lg py-4 text-center text-sm text-gray-400 hover:border-purple-400 hover:text-purple-600 transition-colors"
                 >
                   {csvFileName ? `✅ ${csvFileName}` : 'Click to upload buycall CSV file'}
                 </button>
@@ -603,7 +603,7 @@ export default function Home() {
                   {loadingStep && csvSource === 'telegram' ? loadingStep : '📥 Fetch Latest CSV from Telegram'}
                 </button>
                 {csvFileName && csvSource === 'telegram' && (
-                  <p className="text-xs text-green-600">✅ {csvFileName} loaded</p>
+                  <p className="text-xs text-purple-600">✅ {csvFileName} loaded</p>
                 )}
               </div>
             )}
@@ -618,7 +618,7 @@ export default function Home() {
           <button
             onClick={handleGenerate}
             disabled={loading || !csvText}
-            className="w-full py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-sm transition-colors"
+            className="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-sm transition-colors"
           >
             {loading ? loadingStep || 'Generating...' : '🚀 Generate Portfolio'}
           </button>
@@ -627,7 +627,7 @@ export default function Home() {
         {/* Loading state */}
         {loading && (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
-            <div className="inline-block w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mb-3" />
+            <div className="inline-block w-8 h-8 border-4 border-purple-200 border-t-green-600 rounded-full animate-spin mb-3" />
             <p className="text-sm text-gray-500">{loadingStep}</p>
             <p className="text-xs text-gray-400 mt-1">Analysing stocks and fetching market data from Yahoo Finance...</p>
           </div>
