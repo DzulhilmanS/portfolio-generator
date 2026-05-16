@@ -196,7 +196,7 @@ export default async function handler(req, res) {
     })),
     meta: {
       totalStocksInCSV: stocks.length,
-      tickersAttempted: uniqueTickers.length,
+      tickersAttempted: tickerItems.length,
       tickersFetched: marketDataList.filter((m) => !m.error).length,
       tickersFailed: marketDataList.filter((m) => m.error).length,
       generatedAt: new Date().toISOString(),
