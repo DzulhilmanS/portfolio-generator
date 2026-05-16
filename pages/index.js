@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 /* ─────────────────────────────────────────────
    HELPER COMPONENTS
@@ -434,38 +434,43 @@ function AllocationTable({ selected }) {
 export default function Home() {
   const [capital, setCapital] = useState('100000');
   const [numStocks, setNumStocks] = useState('10');
-  const [csvSource, setCsvSource] = useState('upload'); // 'upload' | 'telegram'
   const [csvText, setCsvText] = useState('');
   const [csvFileName, setCsvFileName] = useState('');
+  const [csvStatus, setCsvStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
   const fileRef = useRef();
 
+  // Auto-fetch CSV from Telegram on page load
+  useEffect(() => {
+    const autoFetch = async () => {
+      setCsvStatus('loading');
+      try {
+        const res = await fetch('/api/fetch-csv');
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error);
+        setCsvText(data.csvText);
+        setCsvFileName(data.fileName ?? 'buycalls.csv');
+        setCsvStatus('ready');
+      } catch (err) {
+        console.warn('Auto-fetch failed:', err.message);
+        setCsvStatus('error');
+      }
+    };
+    autoFetch();
+  }, []);
+
+  // Admin: manual CSV upload override
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setCsvFileName(file.name);
+    setCsvStatus('ready');
     const reader = new FileReader();
     reader.onload = (ev) => setCsvText(ev.target.result);
     reader.readAsText(file);
-  };
-
-  const handleTelegramFetch = async () => {
-    setLoadingStep('Fetching CSV from Telegram...');
-    setError('');
-    try {
-      const res = await fetch('/api/fetch-csv');
-      const data = await res.json();
-      if (!res.ok || data.error) throw new Error(data.error ?? 'Telegram fetch failed');
-      setCsvText(data.csvText);
-      setCsvFileName(data.fileName ?? 'telegram_buycalls.csv');
-    } catch (err) {
-      setError(`Telegram fetch failed: ${err.message}`);
-    } finally {
-      setLoadingStep('');
-    }
   };
 
   const handleGenerate = async () => {
@@ -473,7 +478,7 @@ export default function Home() {
     setResult(null);
 
     if (!csvText) {
-      setError('Please upload a CSV file or fetch it from Telegram first.');
+      setError('No buycall data loaded. Please wait for auto-fetch or upload a CSV.');
       return;
     }
     const cap = parseFloat(capital);
@@ -482,7 +487,7 @@ export default function Home() {
     if (isNaN(ns) || ns < 1 || ns > 30) { setError('Number of stocks must be between 1 and 30.'); return; }
 
     setLoading(true);
-    setLoadingStep('Parsing broker buycalls CSV...');
+    setLoadingStep('Parsing broker buycalls...');
 
     try {
       setLoadingStep('Fetching market data from Yahoo Finance (may take 20–40s)...');
@@ -495,10 +500,7 @@ export default function Home() {
       setLoadingStep('Running scoring & portfolio construction...');
       const data = await res.json();
 
-      if (!res.ok || data.error) {
-        throw new Error(data.error ?? 'Generation failed');
-      }
-
+      if (!res.ok || data.error) throw new Error(data.error ?? 'Generation failed');
       setResult(data);
     } catch (err) {
       setError(err.message ?? 'An unexpected error occurred.');
@@ -522,7 +524,21 @@ export default function Home() {
               <p className="text-xs text-gray-400 leading-none mt-0.5">Powered by MWMVIP Group</p>
             </div>
           </div>
-          <span></span>
+
+          {/* Admin Upload CSV — top right */}
+          <div className="flex items-center gap-2">
+            <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFileUpload} />
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg hover:border-purple-400 hover:text-purple-600 transition-colors bg-white"
+              title="Admin: override with manual CSV upload"
+            >
+              📁 Upload CSV
+            </button>
+            {csvFileName && (
+              <span className="text-xs text-purple-600 hidden sm:block">✅ {csvFileName}</span>
+            )}
+          </div>
         </div>
       </header>
 
@@ -560,51 +576,22 @@ export default function Home() {
             </div>
           </div>
 
-          {/* CSV source tabs */}
+          {/* CSV status indicator */}
           <div className="mb-4">
-            <label className="block text-xs text-gray-500 mb-2">Buycall CSV Source</label>
-            <div className="flex gap-2 mb-3">
-              <button
-                onClick={() => setCsvSource('upload')}
-                className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-colors ${csvSource === 'upload' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-              >
-                📁 Upload CSV
-              </button>
-              <button
-                onClick={() => setCsvSource('telegram')}
-                className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-colors ${csvSource === 'telegram' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-              >
-                📨 Fetch Broker's Buycalls
-              </button>
-            </div>
-
-            {csvSource === 'upload' && (
-              <div>
-                <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFileUpload} />
-                <button
-                  onClick={() => fileRef.current?.click()}
-                  className="w-full border-2 border-dashed border-gray-200 rounded-lg py-4 text-center text-sm text-gray-400 hover:border-purple-400 hover:text-purple-600 transition-colors"
-                >
-                  {csvFileName ? `✅ ${csvFileName}` : 'Click to upload buycall CSV file'}
-                </button>
+            {csvStatus === 'loading' && (
+              <div className="flex items-center gap-2 text-xs text-gray-400 bg-gray-50 px-3 py-2 rounded-lg">
+                <div className="w-3 h-3 border-2 border-gray-300 border-t-purple-500 rounded-full animate-spin" />
+                Loading latest broker buycalls...
               </div>
             )}
-
-            {csvSource === 'telegram' && (
-              <div className="space-y-2">
-                <p className="text-xs text-gray-400">
-                  Requires <code className="bg-gray-100 px-1 rounded">TELEGRAM_BOT_TOKEN</code> in environment variables and the bot added as admin to your channel.
-                </p>
-                <button
-                  onClick={handleTelegramFetch}
-                  disabled={loadingStep !== ''}
-                  className="px-4 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                >
-                  {loadingStep && csvSource === 'telegram' ? loadingStep : '📥 Fetch Latest CSV from Telegram'}
-                </button>
-                {csvFileName && csvSource === 'telegram' && (
-                  <p className="text-xs text-purple-600">✅ {csvFileName} loaded</p>
-                )}
+            {csvStatus === 'ready' && (
+              <div className="flex items-center gap-2 text-xs text-purple-700 bg-purple-50 px-3 py-2 rounded-lg border border-purple-100">
+                ✅ {csvFileName} loaded and ready
+              </div>
+            )}
+            {csvStatus === 'error' && (
+              <div className="text-xs text-orange-700 bg-orange-50 px-3 py-2 rounded-lg border border-orange-100">
+                ⚠️ Could not auto-load buycalls. Use the Upload CSV button (top right) to load manually.
               </div>
             )}
           </div>
@@ -617,7 +604,7 @@ export default function Home() {
 
           <button
             onClick={handleGenerate}
-            disabled={loading || !csvText}
+            disabled={loading || csvStatus !== 'ready'}
             className="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-sm transition-colors"
           >
             {loading ? loadingStep || 'Generating...' : '🚀 Generate Portfolio'}
@@ -627,7 +614,7 @@ export default function Home() {
         {/* Loading state */}
         {loading && (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
-            <div className="inline-block w-8 h-8 border-4 border-purple-200 border-t-green-600 rounded-full animate-spin mb-3" />
+            <div className="inline-block w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-3" />
             <p className="text-sm text-gray-500">{loadingStep}</p>
             <p className="text-xs text-gray-400 mt-1">Analysing stocks and fetching market data from Yahoo Finance...</p>
           </div>
