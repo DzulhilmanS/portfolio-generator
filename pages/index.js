@@ -448,9 +448,24 @@ export default function Home() {
     const autoFetch = async () => {
       setCsvStatus('loading');
       try {
-        const res = await fetch('/api/fetch-csv');
+        // Send browser-cached file_id as fallback (survives Railway restarts)
+        const cachedFileId = typeof window !== 'undefined'
+          ? localStorage.getItem('pg_buycall_file_id') : null;
+
+        const url = cachedFileId
+          ? `/api/fetch-csv?file_id=${encodeURIComponent(cachedFileId)}`
+          : '/api/fetch-csv';
+
+        const res = await fetch(url);
         const data = await res.json();
+
         if (!res.ok || data.error) throw new Error(data.error);
+
+        // Cache the fileId in browser localStorage for next session / after server restart
+        if (data.fileId && typeof window !== 'undefined') {
+          localStorage.setItem('pg_buycall_file_id', data.fileId);
+        }
+
         setCsvText(data.csvText);
         setCsvFileName(data.fileName ?? 'buycalls.csv');
         setCsvStatus('ready');
